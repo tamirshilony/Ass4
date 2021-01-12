@@ -213,7 +213,8 @@ class _Repository:
         # insert new vaccsine
         self.vaccines.insert(Vaccine(100, date, supplier.id, amount))
         # get supplier_logistic_id and update logistic
-        self.logistics.update(supplier.logistic, supplier.logistic.count_received + amount)
+        logistic = self.logistics.find(supplier.logistic)
+        self.logistics.updateRecieve(logistic, logistic.count_received + int(amount))
 
     # sendShipment(location_name,amount)
     def sendShipment(self, location, amount):
