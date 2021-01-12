@@ -64,7 +64,7 @@ class _Vaccines:
 
     def findOldesVaccines(self):
         c = self._conn.cursor()
-        c.execute(""""
+        c.execute("""
         SELECT id FROM Vaccines
         ORDER BY date 
         LIMIT 1
@@ -80,11 +80,18 @@ class _Suppliers:
         INSERT INTO Suppliers (id, name, logistic) VALUES (?, ?, ?)
         """, [Supplier.id, Supplier.name, Supplier.logistic])
 
-    def find(self, attribute, value):
+    def find(self, id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Suppliers WHERE ? = ?
-            """, [attribute, value])
+            SELECT * FROM Suppliers WHERE id = ?
+            """, [id])
+        return Supplier(*c.fetchone())
+
+    def findByName(self, name):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Suppliers WHERE name = ?
+            """, [name])
         return Supplier(*c.fetchone())
 
 
@@ -97,11 +104,19 @@ class _Clinics:
         INSERT INTO Clinics (id, location, demand, logistic) VALUES (?, ?, ?, ?)
         """, [Clinic.id, Clinic.location, Clinic.demand, Clinic.logistic])
 
-    def find(self, attribute, identify):
+
+    def find(self, id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Clinics WHERE ? = ?
-        """, [attribute, identify])
+            SELECT * FROM Clinics WHERE id = ?
+        """, [id])
+        return Clinic(*c.fetchone())
+
+    def findByLocation(self, location):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Clinics WHERE location = ?
+        """, [location])
         return Clinic(*c.fetchone())
 
     def update(self, Clinic_id, demand):
@@ -199,7 +214,7 @@ class _Repository:
         # take from right date
         self.takeOutVaccines(amount)
         # find clinics_id by location
-        clinic = self.clinics.find("location", location)
+        clinic = self.clinics.findByLocation(location)
         # Clinic =  Clinics.find(location, location_name)
         self.clinics.update(clinic.id, amount)
         # Clinics.update(Clinic.id,amount)
@@ -211,15 +226,15 @@ class _Repository:
     # Logistics.update(supplier_logistic_id, count_sent,amount)
 
     def takeOutVaccines(self, amount):
-        amountLeft = amount
+        amountLeft = int(amount)
         while amountLeft > 0:
             id = self.vaccines.findOldesVaccines()
-            vaccine = self.vaccines.find(id)
+            vaccine = self.vaccines.find(*id)
             if amountLeft > vaccine.quantity:
                 amountLeft -= vaccine.quantity
-                self.vaccines.update(id, 0)
+                self.vaccines.update(*id, 0)
             else:
-                self.vaccines.update(id, vaccine.quantity-amountLeft)
+                self.vaccines.update(*id, vaccine.quantity-amountLeft)
                 amountLeft = 0
 
 
