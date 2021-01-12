@@ -62,6 +62,14 @@ class _Vaccines:
             DELETE FROM Vaccines WHERE id = ?
             """, [Vaccine_id])
 
+    def findOldesVaccines(self):
+        c = self._conn.cursor()
+        c.execute(""""
+        SELECT id FROM Vaccines
+        ORDER BY date 
+        LIMIT 1
+        """)
+        return [*c.fetchone()]
 
 class _Suppliers:
     def __init__(self, conn):
@@ -186,7 +194,15 @@ class _Repository:
         # get supplier_logistic_id and update logistic
         self.logistics.update(supplier.logistic, supplier.logistic.count_received + amount)
 
-
+    # sendShipment(location_name,amount)
+    def sendShipment(self, location, amount):
+        # take from right date
+        self.takeOutVaccines(amount)
+        # find clinics_id by location
+        clinic = self.clinics.find("location", location)
+        # Clinic =  Clinics.find(location, location_name)
+        self.clinics.update(clinic.id, amount)
+        # Clinics.update(Clinic.id,amount)
 
     # receiveShipment(supplier_name, amount, date)
     # get supplier.id
@@ -194,8 +210,16 @@ class _Repository:
     # get supplier_logistic_id
     # Logistics.update(supplier_logistic_id, count_sent,amount)
 
-# sendShipment(location_name,amount)
-    # find clinics_id by location
-    # Clinic =  Clinics.find(location, location_name)
-    # Clinics.update(Clinic.id,amount)
-    #  sort vaccsin
+    def takeOutVaccines(self, amount):
+        amountLeft = amount
+        while amountLeft > 0:
+            id = self.vaccines.findOldesVaccines()
+            vaccine = self.vaccines.find(id)
+            if amountLeft > vaccine.quantity:
+                amountLeft -= vaccine.quantity
+                self.vaccines.update(id, 0)
+            else:
+                self.vaccines.update(id, vaccine.quantity-amountLeft)
+                amountLeft = 0
+
+
