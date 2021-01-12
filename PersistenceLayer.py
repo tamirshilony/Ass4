@@ -87,18 +87,20 @@ class _Clinics:
         INSERT INTO Clinics (id, location, demand, logistic) VALUES (?, ?, ?, ?)
         """, [Clinic.id, Clinic.location, Clinic.demand, Clinic.logistic])
 
-def find(self, Clinic_id):
-    c = self._conn.cursor()
-    c.execute("""
-        SELECT * FROM Clinics WHERE id = ?
-        """, [Clinic_id])
 
-    return Clinic(*c.fetchone())
+    def find(self, attribute, identify):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Clinics WHERE ? = ?
+        """, [attribute, identify])
+        return Clinic(*c.fetchone())
 
-def update(self, Clinic_id, demand):
-    c = self._conn.cursor()
-    c.execute("""
-        UPDATE Clinics SET demand = ? WHERE id = ?
+
+
+    def update(self, Clinic_id, demand):
+        c = self._conn.cursor()
+        c.execute("""
+            UPDATE Clinics SET demand = ? WHERE id = ?
         """, [demand, Clinic_id])
 
 
@@ -133,9 +135,12 @@ def update(self, Logistic_id, attribute, value):
     # get supplier_logistic_id
     # Logistics.update(supplier_logistic_id, count_sent,amount)
 
-    # sendShipment(location,amount)
-    # find clinic id by name
-    #
+# sendShipment(location_name,amount)
+    # find clinics_id by location
+    # Clinic =  Clinics.find(location, location_name)
+    # Clinics.update(Clinic.id,amount)
+    #  sort vaccsin
+
 
 
 import sqlite3
