@@ -39,7 +39,7 @@ class _Vaccines:
     def insert(self, Vaccine):
         self._conn.execute("""
         INSERT INTO Vaccines (id, date , supplier, quantity) VALUES (?, ?, ?, ?)
-        """, [Vaccine.id, Vaccine.data, Vaccine.supplier, Vaccine.quantity])
+        """, [Vaccine.id, Vaccine.date, Vaccine.supplier, Vaccine.quantity])
 
     def find(self, Vaccine_id):
         c = self._conn.cursor()
@@ -127,10 +127,15 @@ class _Logistics:
 
 
 import sqlite3
-
+import os
 class _Repository:
 
     def __init__(self):
+        self.delete_tables = True
+        if self.delete_tables:
+            isExist = os.path.exists("database.db")
+            if isExist:
+                os.remove("database.db")
         self._conn = sqlite3.connect("database.db")
         self.vaccines = _Vaccines(self._conn)
         self.suppliers = _Suppliers(self._conn)
@@ -146,7 +151,7 @@ class _Repository:
     def create_tables(self):
         self._conn.executescript("""
             CREATE TABLE vaccines (
-            id          INT         PRIMARY KEY     AUTO_INCREMENT,
+            id          INT         PRIMARY KEY,
             date        DATE        NOT NULL,
             supplier    INT         REFERENCES suppliers(id),
             quantity    INT         NOT NULL
@@ -165,16 +170,21 @@ class _Repository:
             logistic    INT         REFERENCES  logistics(id)
             );
             
-            CREATE TABLE logistics (
+            CREATE TABLE Logistics (
             id          INT         PRIMARY KEY,
             name        TEXT        NOT NULL,
             count_sent  INT         NOT NULL,
-            count_recieved  INT     NOT NULL,
+            count_received  INT     NOT NULL
             );
-        """)
+    """)
 
     def receiveShipment(self, supplier_name, amount, date):
-        self.suppliers.find()
+        # get supplier(DTO)
+        supplier = self.suppliers.find("name", supplier_name)
+        # insert new vaccsine
+        self.vaccines.insert(Vaccine(100, date, supplier.id, amount))
+        # get supplier_logistic_id and update logistic
+        self.logistics.update(supplier.logistic, supplier.logistic.count_received + amount)
 
 
 
