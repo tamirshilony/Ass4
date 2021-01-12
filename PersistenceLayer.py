@@ -209,8 +209,8 @@ class _Repository:
 
     def receiveShipment(self, supplier_name, amount, date):
         # get supplier(DTO)
-        supplier = self.suppliers.find("name", supplier_name)
-        # insert new vaccsine
+        supplier = self.suppliers.find(supplier_name)
+        # insert new vaccine
         self.vaccines.insert(Vaccine(100, date, supplier.id, amount))
         # get supplier_logistic_id and update logistic
         logistic = self.logistics.find(supplier.logistic)
@@ -218,12 +218,17 @@ class _Repository:
 
     # sendShipment(location_name,amount)
     def sendShipment(self, location, amount):
-        # take from right date
+        # take amount vaccine from distribution center and update
         self.takeOutVaccines(amount)
+        # get the clinic(DTO)
         clinic = self.clinics.findByLocation(location)
-        self.clinics.update(clinic.id, amount)
+        # update clinic demand
+        self.clinics.update(clinic.id, clinic.demand - int(amount))
+        # get clinic_logistic
         logistic = self.logistics.find(clinic.logistic)
+        # update logistic count_sent
         self.logistics.updateSent(logistic.id, logistic.count_sent+int(amount))
+        print("hello")
 
 
     # receiveShipment(supplier_name, amount, date)
