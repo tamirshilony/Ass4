@@ -138,15 +138,21 @@ class _Logistics:
     def find(self, Logistic_id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Logistic WHERE id = ?
+            SELECT * FROM Logistics WHERE id = ?
             """, [Logistic_id])
         return Logistic(*c.fetchone())
 
-    def update(self, Logistic_id, attribute, value):
+    def updateSent(self, Logistic_id, value):
         c = self._conn.cursor()
         c.execute("""
-            UPDATE Logistic SET ? = ?  WHERE id = ?
-            """, [attribute, value, Logistic_id])
+            UPDATE Logistics SET count_sent = ?  WHERE id = ?
+            """, [value, Logistic_id])
+
+    def updateRecieve(self, Logistic_id, value):
+        c = self._conn.cursor()
+        c.execute("""
+            UPDATE Logistics SET count_received = ?  WHERE id = ?
+            """, [value, Logistic_id])
 
 
 import sqlite3
@@ -213,11 +219,11 @@ class _Repository:
     def sendShipment(self, location, amount):
         # take from right date
         self.takeOutVaccines(amount)
-        # find clinics_id by location
         clinic = self.clinics.findByLocation(location)
-        # Clinic =  Clinics.find(location, location_name)
         self.clinics.update(clinic.id, amount)
-        # Clinics.update(Clinic.id,amount)
+        logistic = self.logistics.find(clinic.logistic)
+        self.logistics.updateSent(logistic.id, logistic.count_sent+int(amount))
+
 
     # receiveShipment(supplier_name, amount, date)
     # get supplier.id
