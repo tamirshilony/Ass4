@@ -6,11 +6,13 @@ class Vaccine:
         self.supplier = supplier
         self.quantity = quantity
 
+
 class Supplier:
     def __init__(self, id, name, logistic):
         self.id = id
         self.name = name
         self.logistic = logistic
+
 
 class Clinic:
     def __init__(self, id, location, demand, logistic):
@@ -19,12 +21,14 @@ class Clinic:
         self.demand = demand
         self.logistic = logistic
 
+
 class Logistic:
     def __init__(self, id, name, count_sent, count_received):
         self.id = id
         self.name = name
         self.count_sent = count_sent
         self.count_received = count_received
+
 
 # Data Access Objects:
 # All of these are meant to be singletons
@@ -37,27 +41,26 @@ class _Vaccines:
         INSERT INTO Vaccines (id, date , supplier, quantity) VALUES (?, ?, ?, ?)
         """, [Vaccine.id, Vaccine.data, Vaccine.supplier, Vaccine.quantity])
 
-def find(self, Vaccine_id):
-    c = self._conn.cursor()
-    c.execute("""
-        SELECT * FROM Vaccines WHERE id = ?
-        """, [Vaccine_id])
+    def find(self, Vaccine_id):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Vaccines WHERE id = ?
+            """, [Vaccine_id])
+        return Vaccine(*c.fetchone())
 
-    return Vaccine(*c.fetchone())
+    def update(self, Vaccine_id, quantity):
+        c = self._conn.cursor()
+        c.execute("""
+            UPDATE Vaccines SET quantity = ?  WHERE id = ?
+            """, [quantity, Vaccine_id])
+        if quantity == 0:
+            self.delete(Vaccine_id)
 
-def update(self, Vaccine_id, quantity):
-    c = self._conn.cursor()
-    c.execute("""
-        UPDATE Vaccines SET quantity = ?  WHERE id = ?
-        """, [quantity, Vaccine_id])
-    if quantity == 0:
-        self.delete(Vaccine_id)
-
-def delete(self, Vaccine_id):
-    c = self._conn.cursor()
-    c.execute("""
-        DELETE FROM Vaccines WHERE id = ?
-        """, [Vaccine_id])
+    def delete(self, Vaccine_id):
+        c = self._conn.cursor()
+        c.execute("""
+            DELETE FROM Vaccines WHERE id = ?
+            """, [Vaccine_id])
 
 
 class _Suppliers:
@@ -69,13 +72,12 @@ class _Suppliers:
         INSERT INTO Suppliers (id, name, logistic) VALUES (?, ?, ?)
         """, [Supplier.id, Supplier.name, Supplier.logistic])
 
-def find(self, Supplier_id):
-    c = self._conn.cursor()
-    c.execute("""
-        SELECT * FROM Vaccines WHERE id = ?
-        """, [Supplier_id])
-
-    return Supplier(*c.fetchone())
+    def find(self, attribute, value):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Suppliers WHERE ? = ?
+            """, [attribute, value])
+        return Supplier(*c.fetchone())
 
 
 class _Clinics:
@@ -87,7 +89,6 @@ class _Clinics:
         INSERT INTO Clinics (id, location, demand, logistic) VALUES (?, ?, ?, ?)
         """, [Clinic.id, Clinic.location, Clinic.demand, Clinic.logistic])
 
-
     def find(self, attribute, identify):
         c = self._conn.cursor()
         c.execute("""
@@ -95,14 +96,11 @@ class _Clinics:
         """, [attribute, identify])
         return Clinic(*c.fetchone())
 
-
-
     def update(self, Clinic_id, demand):
         c = self._conn.cursor()
         c.execute("""
             UPDATE Clinics SET demand = ? WHERE id = ?
         """, [demand, Clinic_id])
-
 
 
 class _Logistics:
@@ -114,33 +112,18 @@ class _Logistics:
         INSERT INTO Logistics (id, name, count_sent, count_received) VALUES (?, ?, ?, ?)
         """, [Logistic.id, Logistic.name, Logistic.count_sent, Logistic.count_received])
 
-def find(self, Logistic_id):
-    c = self._conn.cursor()
-    c.execute("""
-        SELECT * FROM Logistic WHERE id = ?
-        """, [Logistic_id])
-    return Logistic(*c.fetchone())
+    def find(self, Logistic_id):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Logistic WHERE id = ?
+            """, [Logistic_id])
+        return Logistic(*c.fetchone())
 
-def update(self, Logistic_id, attribute, value):
-    c = self._conn.cursor()
-    c.execute("""
-        UPDATE Logistic SET ? = ?  WHERE id = ?
-        """, [attribute, value, Logistic_id])
-
-
-
-    # receiveShipment(supplier_name, amount, date)
-    # get supplier.id
-    # Vaccsines.insert((aoutoincrementId),date,upplier.id,amount)
-    # get supplier_logistic_id
-    # Logistics.update(supplier_logistic_id, count_sent,amount)
-
-# sendShipment(location_name,amount)
-    # find clinics_id by location
-    # Clinic =  Clinics.find(location, location_name)
-    # Clinics.update(Clinic.id,amount)
-    #  sort vaccsin
-
+    def update(self, Logistic_id, attribute, value):
+        c = self._conn.cursor()
+        c.execute("""
+            UPDATE Logistic SET ? = ?  WHERE id = ?
+            """, [attribute, value, Logistic_id])
 
 
 import sqlite3
@@ -189,3 +172,20 @@ class _Repository:
             count_recieved  INT     NOT NULL,
             );
         """)
+
+    def receiveShipment(self, supplier_name, amount, date):
+        self.suppliers.find()
+
+
+
+    # receiveShipment(supplier_name, amount, date)
+    # get supplier.id
+    # Vaccsines.insert((aoutoincrementId),date,supplier.id,amount)
+    # get supplier_logistic_id
+    # Logistics.update(supplier_logistic_id, count_sent,amount)
+
+# sendShipment(location_name,amount)
+    # find clinics_id by location
+    # Clinic =  Clinics.find(location, location_name)
+    # Clinics.update(Clinic.id,amount)
+    #  sort vaccsin
