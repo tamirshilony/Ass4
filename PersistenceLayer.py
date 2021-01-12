@@ -158,7 +158,7 @@ class _Repository:
     def create_tables(self):
         self._conn.executescript("""
             CREATE TABLE vaccines (
-            id          INT         PRIMARY KEY,
+            id          INT         PRIMARY KEY     AUTO_INCREMENT,
             date        DATE        NOT NULL,
             supplier    INT         REFERENCES suppliers(id),
             quantity    INT         NOT NULL
@@ -166,7 +166,7 @@ class _Repository:
             
             CREATE TABLE suppliers (
             id          INT         PRIMARY KEY,
-            name        TEXT        NOT NULL        DEFAULT 'notDef',
+            name        TEXT        NOT NULL,
             logistic    INT         REFERENCES logistics(id)
             );
             
@@ -179,8 +179,8 @@ class _Repository:
             
             CREATE TABLE logistics (
             id          INT         PRIMARY KEY,
-            name        TEXT        NOT NULL        DEFAULT 'notDef',
-            count_sent  INT         NOT NULL        DEFAULT -1,
-            count_recieved  INT     NOT NULL        EFAULT -1
+            name        TEXT        NOT NULL,
+            count_sent  INT         NOT NULL,
+            count_recieved  INT     NOT NULL,
             );
         """)
