@@ -51,7 +51,6 @@ def logToFile(a,b,c,d):
         outputfile.write(str(a)+","+str(b)+","+str(c)+","+str(d))
 
 
-
 if __name__ == '__main__':
     main()
 
