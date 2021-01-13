@@ -38,20 +38,20 @@ class _Vaccines:
 
     def insert(self, Vaccine):
         self._conn.execute("""
-        INSERT INTO Vaccines (id, date , supplier, quantity) VALUES (?, ?, ?, ?)
+        INSERT INTO vaccines (id, date , supplier, quantity) VALUES (?, ?, ?, ?)
         """, [Vaccine.id, Vaccine.date, Vaccine.supplier, Vaccine.quantity])
 
     def find(self, Vaccine_id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Vaccines WHERE id = ?
+            SELECT * FROM vaccines WHERE id = ?
             """, [Vaccine_id])
         return Vaccine(*c.fetchone())
 
     def update(self, Vaccine_id, quantity):
         c = self._conn.cursor()
         c.execute("""
-            UPDATE Vaccines SET quantity = ?  WHERE id = ?
+            UPDATE vaccines SET quantity = ?  WHERE id = ?
             """, [quantity, Vaccine_id])
         if quantity == 0:
             self.delete(Vaccine_id)
@@ -59,13 +59,13 @@ class _Vaccines:
     def delete(self, Vaccine_id):
         c = self._conn.cursor()
         c.execute("""
-            DELETE FROM Vaccines WHERE id = ?
+            DELETE FROM vaccines WHERE id = ?
             """, [Vaccine_id])
 
     def findOldesVaccines(self):
         c = self._conn.cursor()
         c.execute("""
-        SELECT id FROM Vaccines
+        SELECT id FROM vaccines
         ORDER BY date 
         LIMIT 1
         """)
@@ -74,9 +74,17 @@ class _Vaccines:
     def findLastVaccinesId(self):
         c = self._conn.cursor()
         c.execute("""
-        SELECT id FROM Vaccines
+        SELECT id FROM vaccines
         ORDER BY date DESC
         LIMIT 1
+        """)
+        return [*c.fetchone()]
+    
+    def getQuantities(self):
+        c = self._conn.cursor()
+        c.execute("""
+        SELECT SUM (quantity)
+        FROM vaccines
         """)
         return [*c.fetchone()]
 
@@ -86,20 +94,20 @@ class _Suppliers:
 
     def insert(self, Supplier):
         self._conn.execute("""
-        INSERT INTO Suppliers (id, name, logistic) VALUES (?, ?, ?)
+        INSERT INTO suppliers (id, name, logistic) VALUES (?, ?, ?)
         """, [Supplier.id, Supplier.name, Supplier.logistic])
 
     def find(self, id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Suppliers WHERE id = ?
+            SELECT * FROM suppliers WHERE id = ?
             """, [id])
         return Supplier(*c.fetchone())
 
     def findByName(self, name):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Suppliers WHERE name = ?
+            SELECT * FROM suppliers WHERE name = ?
             """, [name])
         return Supplier(*c.fetchone())
 
@@ -110,36 +118,45 @@ class _Clinics:
 
     def insert(self, Clinic):
         self._conn.execute("""
-        INSERT INTO Clinics (id, location, demand, logistic) VALUES (?, ?, ?, ?)
+        INSERT INTO clinics (id, location, demand, logistic) VALUES (?, ?, ?, ?)
         """, [Clinic.id, Clinic.location, Clinic.demand, Clinic.logistic])
 
 
     def find(self, id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Clinics WHERE id = ?
+            SELECT * FROM clinics WHERE id = ?
         """, [id])
         return Clinic(*c.fetchone())
 
     def findByLocation(self, location):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Clinics WHERE location = ?
+            SELECT * FROM clinics WHERE location = ?
         """, [location])
         return Clinic(*c.fetchone())
 
     def update(self, Clinic_id, demand):
         c = self._conn.cursor()
         c.execute("""
-            UPDATE Clinics SET demand = ? WHERE id = ?
+            UPDATE clinics SET demand = ? WHERE id = ?
         """, [demand, Clinic_id])
 
     def toPRINT(self, id_clinic):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Clinics WHERE id = ?
+            SELECT * FROM clinics WHERE id = ?
         """, [id_clinic])
         return c.fetchone()
+    
+    def getTotalDemand(self):
+        c = self._conn.cursor()
+        c.execute("""
+                SELECT SUM (count_sent)
+                FROM clinics
+                """)
+        return [*c.fetchone()]
+        
 
 
 
@@ -171,6 +188,22 @@ class _Logistics:
         c.execute("""
             UPDATE logistics SET count_received = ?  WHERE id = ?
             """, [value, Logistic_id])
+
+    def getTotalRecieved(self):
+        c = self._conn.cursor()
+        c.execute("""
+                SELECT SUM (count_received)
+                FROM logistics
+                """)
+        return [*c.fetchone()]
+    
+    def getTotalSent(self):
+        c = self._conn.cursor()
+        c.execute("""
+                SELECT SUM (count_sent)
+                FROM logistics
+                """)
+        return [*c.fetchone()]
 
 
 import sqlite3
