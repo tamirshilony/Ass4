@@ -38,12 +38,19 @@ def main():
             parsedLine = line.split(",")
             if len(parsedLine) == 2:
                 repo.sendShipment(*parsedLine)
-                total_sent = int(parsedLine[1])
+                total_inventory -= int(parsedLine[1])
+                total_sent += int(parsedLine[1])
             else:
                 repo.receiveShipment(*parsedLine)
-                total_received = int(parsedLine[1])
+                total_inventory += int(parsedLine[1])
+                total_received += int(parsedLine[1])
+            logToFile(total_inventory,total_demand,total_received,total_sent)
 
-    def logToFile(total_inventory,total_demand,total_received)
+def logToFile(a,b,c,d):
+    with open('output.txt', 'a') as outputfile:
+        outputfile.write(str(a)+","+str(b)+","+str(c)+","+str(d))
+
+
 
 if __name__ == '__main__':
     main()
