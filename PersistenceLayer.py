@@ -150,26 +150,26 @@ class _Logistics:
 
     def insert(self, Logistic):
         self._conn.execute("""
-        INSERT INTO Logistics (id, name, count_sent, count_received) VALUES (?, ?, ?, ?)
+        INSERT INTO logistics (id, name, count_sent, count_received) VALUES (?, ?, ?, ?)
         """, [Logistic.id, Logistic.name, Logistic.count_sent, Logistic.count_received])
 
     def find(self, Logistic_id):
         c = self._conn.cursor()
         c.execute("""
-            SELECT * FROM Logistics WHERE id = ?
+            SELECT * FROM logistics WHERE id = ?
             """, [Logistic_id])
         return Logistic(*c.fetchone())
 
     def updateSent(self, Logistic_id, value):
         c = self._conn.cursor()
         c.execute("""
-            UPDATE Logistics SET count_sent = ?  WHERE id = ?
+            UPDATE logistics SET count_sent = ?  WHERE id = ?
             """, [value, Logistic_id])
 
     def updateRecieve(self, Logistic_id, value):
         c = self._conn.cursor()
         c.execute("""
-            UPDATE Logistics SET count_received = ?  WHERE id = ?
+            UPDATE logistics SET count_received = ?  WHERE id = ?
             """, [value, Logistic_id])
 
 
@@ -217,7 +217,7 @@ class _Repository:
             logistic    INT         REFERENCES  logistics(id)
             );
             
-            CREATE TABLE Logistics (
+            CREATE TABLE logistics (
             id          INT         PRIMARY KEY,
             name        TEXT        NOT NULL,
             count_sent  INT         NOT NULL,
@@ -254,7 +254,7 @@ class _Repository:
     # get supplier.id
     # Vaccsines.insert((aoutoincrementId),date,supplier.id,amount)
     # get supplier_logistic_id
-    # Logistics.update(supplier_logistic_id, count_sent,amount)
+    # logistics.update(supplier_logistic_id, count_sent,amount)
 
     def takeOutVaccines(self, amount):
         amountLeft = int(amount)
