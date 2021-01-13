@@ -152,7 +152,7 @@ class _Clinics:
     def getTotalDemand(self):
         c = self._conn.cursor()
         c.execute("""
-                SELECT SUM (count_sent)
+                SELECT SUM (demand)
                 FROM clinics
                 """)
         return [*c.fetchone()]
@@ -240,14 +240,14 @@ class _Repository:
             CREATE TABLE suppliers (
             id          INT         PRIMARY KEY,
             name        TEXT        NOT NULL,
-            logistic    INT         REFERENCES logistics(id)
+            logistic    INTEGER         REFERENCES logistics(id)
             );
             
             CREATE TABLE clinics (
             id          INT         PRIMARY KEY,
             location    TEXT        NOT NULL,
             demand      INT         NOT NULL,
-            logistic    INT         REFERENCES  logistics(id)
+            logistic    INTEGER         REFERENCES  logistics(id)
             );
             
             CREATE TABLE logistics (
@@ -277,17 +277,12 @@ class _Repository:
         clinic = self.clinics.findByLocation(location)
         # update clinic demand
         self.clinics.update(clinic.id, clinic.demand - int(amount))
+        clc = (self.clinics.find(clinic.id))
         # get clinic_logistic
         logistic = self.logistics.find(clinic.logistic)
         # update logistic count_sent
         self.logistics.updateSent(logistic.id, logistic.count_sent+int(amount))
 
-
-    # receiveShipment(supplier_name, amount, date)
-    # get supplier.id
-    # Vaccsines.insert((aoutoincrementId),date,supplier.id,amount)
-    # get supplier_logistic_id
-    # logistics.update(supplier_logistic_id, count_sent,amount)
 
     def takeOutVaccines(self, amount):
         amountLeft = int(amount)
@@ -300,5 +295,11 @@ class _Repository:
             else:
                 self.vaccines.update(*id, vaccine.quantity-amountLeft)
                 amountLeft = 0
+
+
+
+
+
+
 
 

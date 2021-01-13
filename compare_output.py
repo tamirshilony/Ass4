@@ -5,7 +5,7 @@ import sqlite3
 
 
 def output_check():
-    cmp = np.array([[int(x) for x in(l.strip('\n').split(','))] for l in open(sys.argv[1])]) == np.array([[int(x) for x in(l.strip('\n').split(','))] for l in open(sys.argv[2])])
+    cmp = np.array([[int(x) for x in(l.strip('\n').split(','))] for l in open("true_output.txt")]) == np.array([[int(x) for x in(l.strip('\n').split(','))] for l in open("output.txt")])
     [print(f'Mismatch in line {i} value {j}') for i,j in itertools.product(range(cmp.shape[0]),range(cmp.shape[1])) if cmp[i,j] == False];
     return np.sum(cmp)/cmp.size
 
@@ -78,8 +78,8 @@ def compare_clinics(db_true,db_tested):
 
 
 def db_check():
-    db_true = sqlite3.connect(sys.argv[3])
-    db_tested = sqlite3.connect(sys.argv[4])
+    db_true = sqlite3.connect("true_db.db")
+    db_tested = sqlite3.connect("database.db")
     logistics_grade = compare_logstics(db_true,db_tested)
     print(f'Grade for logistics table:{logistics_grade}')
     vaccines_grade = compare_vaccines(db_true,db_tested)
