@@ -71,6 +71,15 @@ class _Vaccines:
         """)
         return [*c.fetchone()]
 
+    def findLastVaccinesId(self):
+        c = self._conn.cursor()
+        c.execute("""
+        SELECT id FROM Vaccines
+        ORDER BY date DESC
+        LIMIT 1
+        """)
+        return [*c.fetchone()]
+
 class _Suppliers:
     def __init__(self, conn):
         self._conn = conn
@@ -124,6 +133,15 @@ class _Clinics:
         c.execute("""
             UPDATE Clinics SET demand = ? WHERE id = ?
         """, [demand, Clinic_id])
+
+    def toPRINT(self, id_clinic):
+        c = self._conn.cursor()
+        c.execute("""
+            SELECT * FROM Clinics WHERE id = ?
+        """, [id_clinic])
+        return c.fetchone()
+
+
 
 
 class _Logistics:
@@ -209,12 +227,14 @@ class _Repository:
 
     def receiveShipment(self, supplier_name, amount, date):
         # get supplier(DTO)
-        supplier = self.suppliers.find(supplier_name)
+        supplier = self.suppliers.findByName(supplier_name)
+        # find next id
+        next_id = self.vaccines.findLastVaccinesId()
         # insert new vaccine
-        self.vaccines.insert(Vaccine(100, date, supplier.id, amount))
+        self.vaccines.insert(Vaccine(int(*next_id)+1, date, supplier.id, amount))
         # get supplier_logistic_id and update logistic
         logistic = self.logistics.find(supplier.logistic)
-        self.logistics.updateRecieve(logistic, logistic.count_received + int(amount))
+        self.logistics.updateRecieve(logistic.id, logistic.count_received + int(amount))
 
     # sendShipment(location_name,amount)
     def sendShipment(self, location, amount):
@@ -228,7 +248,6 @@ class _Repository:
         logistic = self.logistics.find(clinic.logistic)
         # update logistic count_sent
         self.logistics.updateSent(logistic.id, logistic.count_sent+int(amount))
-        print("hello")
 
 
     # receiveShipment(supplier_name, amount, date)

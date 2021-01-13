@@ -43,7 +43,7 @@ def main():
                 repo.receiveShipment(*parsedLine)
                 total_received = int(parsedLine[1])
 
-    def logToFile(total_inventory,total_demand,total_received)
+    # def logToFile(total_inventory,total_demand,total_received)
 
 if __name__ == '__main__':
     main()
